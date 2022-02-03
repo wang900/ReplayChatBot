@@ -2,13 +2,17 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
+	entity "github.com/wang900/ReplayChatBot/Bot/entities"
 )
 
-const token string = "OTM4NTE1NjU4MjUyMDk5NjM1.Yfra0Q.c3uTdFk3nS_3Qje0cID8cvlVOA0"
+const token string = ""
 
-var BotId = ""
+var BotID = ""
+
+var anime []entity.Anime
 
 func main() {
 	dg, err := discordgo.New("Bot " + token)
@@ -24,7 +28,8 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	BotId = u.ID
+	BotID = u.ID
+	generateTestdata()
 
 	dg.AddHandler(messageHandler)
 
@@ -32,7 +37,6 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println(BotId)
 		return
 	}
 
@@ -44,10 +48,47 @@ func main() {
 
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-	if m.Author.ID == BotId {
+	if m.Author.ID == BotID {
 		return
 	}
 	fmt.Println(m.Content)
+	var newMessage entity.ChatMessage
+	var err error
+	newMessage.Message = m.Content
+	newMessage.AuthorID = m.Author.ID
+	newMessage.TimeStamp, err = m.Timestamp.Parse()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	anime[0].Episodes[0].Chat.ChatMessages = append(anime[0].Episodes[0].Chat.ChatMessages, newMessage)
+	for i := 0; i < len(anime[0].Episodes[0].Chat.ChatMessages); i++ {
+		_, _ = s.ChannelMessageSend("938515064221208657", anime[0].Episodes[0].Chat.ChatMessages[i].Message)
+	}
 
-	_, _ = s.ChannelMessageSend("938515064221208657", "KEKW")
+}
+
+func generateTestdata() {
+	var testChatMessages []entity.ChatMessage
+	var testChatMessage entity.ChatMessage
+	testChatMessage.Message = "kekw"
+	testChatMessage.TimeStamp = time.Time{}
+	testChatMessages[0] = testChatMessage
+
+	var testChat entity.Chat
+	testChat.ID = 1
+	testChat.ChatMessages = testChatMessages
+
+	var testEpisodes []entity.Episode
+	var testEpisode entity.Episode
+	testEpisode.ID = 1
+	testEpisode.Value = 1
+	testEpisode.Chat = testChat
+	testEpisodes[0] = testEpisode
+
+	var testAnime entity.Anime
+	testAnime.ID = 1
+	testAnime.Name = "Tim anime"
+	testAnime.Episodes = testEpisodes
+
+	anime[0] = testAnime
 }
