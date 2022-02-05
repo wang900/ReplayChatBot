@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	entity "github.com/wang900/ReplayChatBot/Bot/entities"
@@ -62,17 +61,14 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	anime[0].Episodes[0].Chat.ChatMessages = append(anime[0].Episodes[0].Chat.ChatMessages, newMessage)
 	for i := 0; i < len(anime[0].Episodes[0].Chat.ChatMessages); i++ {
-		_, _ = s.ChannelMessageSend("938515064221208657", anime[0].Episodes[0].Chat.ChatMessages[i].Message)
+		currentChatMessage := anime[0].Episodes[0].Chat.ChatMessages[i]
+		_, _ = s.ChannelMessageSend("938515064221208657", currentChatMessage.Message+" "+currentChatMessage.TimeStamp.String())
 	}
 
 }
 
 func generateTestdata() {
 	var testChatMessages []entity.ChatMessage
-	var testChatMessage entity.ChatMessage
-	testChatMessage.Message = "kekw"
-	testChatMessage.TimeStamp = time.Time{}
-	testChatMessages[0] = testChatMessage
 
 	var testChat entity.Chat
 	testChat.ID = 1
@@ -83,12 +79,12 @@ func generateTestdata() {
 	testEpisode.ID = 1
 	testEpisode.Value = 1
 	testEpisode.Chat = testChat
-	testEpisodes[0] = testEpisode
+	testEpisodes = append(testEpisodes, testEpisode)
 
 	var testAnime entity.Anime
 	testAnime.ID = 1
 	testAnime.Name = "Tim anime"
 	testAnime.Episodes = testEpisodes
 
-	anime[0] = testAnime
+	anime = append(anime, testAnime)
 }
